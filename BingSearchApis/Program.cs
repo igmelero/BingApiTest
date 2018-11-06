@@ -17,24 +17,36 @@ namespace BingSearchTest
     class Program
     {
 
-        const string subscriptionKey = "<subscriptionkey>";
+        const string subscriptionKey = "<subscriptionKey>";
         const string uriBase = "https://api.cognitive.microsoft.com/bing/v7.0/images/search";
-        const string searchTerm = "shoe";
+        const string searchTerm = "shoes";
+        const string site = "https://www.zalando.es/calzado-de-mujer/";
+        const string color = "white";
 
         static void Main(string[] args)
         {
 
-            SearchResult result = BingImageSearch(searchTerm);
+            int i = 1;
+
+            SearchResult result = BingImageSearch(searchTerm, site, color);
 
             //deserialize the JSON response from the Bing Image Search API
             dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(result.jsonResult);
 
-            var firstJsonObj = jsonObj["value"][0];
-            Console.WriteLine("Title for the first image result: " + firstJsonObj["name"] + "\n");
-            //After running the application, copy the output URL into a browser to see the image.
-            Console.WriteLine("URL for the first image result: " + firstJsonObj["webSearchUrl"] + "\n");
-            UploadImage_URL((String)firstJsonObj["thumbnailUrl"], "test1.jpeg");
+            var firstJsonObj = jsonObj["value"];
             Console.WriteLine(firstJsonObj);
+
+            foreach (var item in firstJsonObj)
+            {
+                UploadImage_URL((String)item["thumbnailUrl"], i.ToString() + ".jpeg");
+                i++;
+            }
+
+            //Console.WriteLine("Title for the first image result: " + firstJsonObj["name"] + "\n");
+
+            //After running the application, copy the output URL into a browser to see the image.
+
+            //Console.WriteLine("URL for the first image result: " + firstJsonObj["webSearchUrl"] + "\n");
 
         }
         struct SearchResult
@@ -43,10 +55,10 @@ namespace BingSearchTest
             public Dictionary<String, String> relevantHeaders;
         }
 
-        static SearchResult BingImageSearch(string toSearch)
+        static SearchResult BingImageSearch(string toSearch, string site, string color)
         {
 
-            var uriQuery = uriBase + "?q=" + Uri.EscapeDataString(toSearch) + "site:zara.com";
+            var uriQuery = uriBase + "?q=" + Uri.EscapeDataString(toSearch) + "+site:" + site +"&color=" + color;
 
             WebRequest request = WebRequest.Create(uriQuery);
             request.Headers["Ocp-Apim-Subscription-Key"] = subscriptionKey;
@@ -74,7 +86,7 @@ namespace BingSearchTest
         {
             string accountname = "<accountname>";
 
-            string accesskey = "<accesskey>";
+            string accesskey = "<acceskey>";
 
             try
             {
@@ -85,7 +97,7 @@ namespace BingSearchTest
 
                 CloudBlobClient client = acc.CreateCloudBlobClient();
 
-                CloudBlobContainer cont = client.GetContainerReference("<containername>");
+                CloudBlobContainer cont = client.GetContainerReference("<containerreference>");
 
                 cont.CreateIfNotExists();
 
